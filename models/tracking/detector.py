@@ -73,7 +73,7 @@ class Detector:
 # Test
 if __name__ == '__main__':
     detector = Detector('yolov8n.pt', 'cpu')
-    image = cv2.imread('y:/Fawry Competition/surveillance-for-retail-stores/Surveillance-for-Retail-Stores/models/tracking/test.jpg')
+    image = cv2.imread('test.jpg') # if not working, try with absolute path
     detections = detector.detect(image)
     image = detector.draw_boxes(image, detections)
     cv2.imshow('image', image)
