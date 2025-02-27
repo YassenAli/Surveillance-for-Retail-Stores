@@ -4,7 +4,7 @@ import cv2
 
 
 class Detector:
-    def __init__(self, model_path='yolov5s.pt', device='cpu'):
+    def __init__(self, model_path='yolov8n.pt', device='cpu'):
         try:
 
             # self.model = YOLO(model_path, device=device)
@@ -35,7 +35,8 @@ class Detector:
                     # Placeholder for person type (staff/non_staff); to be updated later by face recognition model
                     person_type = 'unknown'
 
-                    if cls_id == 0:
+                    if cls_id == 0 and conf > 0.5:
+                        person_type = 'person'
                         detection = {
                             'bbox': [x1, y1, x2, y2],
                             'confidence': conf,

@@ -14,10 +14,10 @@ detector = detector.Detector('yolov8n.pt', 'cpu')
 # tracker = tracker.Tracker(detections)
 
 
-videoPath = 'models/tracking/testVideo.mp4'
+videoPath = 'models/tracking/football-video.mp4'
 video = cv2.VideoCapture(videoPath)
 
-tracker = tracker.Tracker() 
+tracker = tracker.Tracker()
 
 if not video.isOpened():
     print("Error opening video stream or file")
