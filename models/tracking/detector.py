@@ -1,7 +1,7 @@
 # YOLO
-import cv2
-import numpy as np
 from ultralytics import YOLO
+import cv2
+
 
 class Detector:
     def __init__(self, model_path='yolov5s.pt', device='cpu'):
@@ -23,7 +23,7 @@ class Detector:
             
             results = self.model(images)
 
-            detections = []
+            detections = [] # list of dictionaries with detection info
             for result in results:
                 for box in result.boxes:
                     coordinates = box.xyxy.cpu().numpy()[0]
@@ -71,11 +71,12 @@ class Detector:
     #     print("YOLO model deleted successfully.")
 
 # Test
-if __name__ == '__main__':
-    detector = Detector('yolov8n.pt', 'cpu')
-    image = cv2.imread('test.jpg') # if not working, try with absolute path
-    detections = detector.detect(image)
-    image = detector.draw_boxes(image, detections)
-    cv2.imshow('image', image)
-    cv2.waitKey(0)
-    cv2.destroyAllWindows
+# if __name__ == '__main__':
+#     detector = Detector('yolov8n.pt', 'cpu')
+#     image_path = 'test.jpg'
+#     image = cv2.imread(image_path) # if not working, try with absolute path
+#     detections = detector.detect(image)
+#     image = detector.draw_boxes(image, detections)
+#     cv2.imshow('image', image)
+#     cv2.waitKey(0)
+#     cv2.destroyAllWindows
