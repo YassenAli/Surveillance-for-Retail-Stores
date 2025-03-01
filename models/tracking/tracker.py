@@ -1,31 +1,50 @@
-from deep_sort_realtime.deepsort_tracker import DeepSort
 import cv2
+from ultralytics import YOLO
 
 class Tracker:
-    def __init__(self):
-
-        self.tracker = DeepSort(max_age=30, n_init=4, embedder="mobilenet")  #mobilenet is a model for extracting features
-
-    def update(self, frame, detections):
+    def __init__(self, model_path='yolov8x.pt'):
+        self.model = YOLO(model_path)
         
-        deepSort_detections = []
-        for detected in detections:
-            bbox = detected['bbox']
-            width = bbox[2] - bbox[0]  
-            height = bbox[3] - bbox[1]  
-            deepSort_detections.append(([bbox[0], bbox[1], width, height], detected['confidence'], 0))  
+        self.class_names = self.model.names
 
-        tracks = self.tracker.update_tracks(deepSort_detections, frame=frame)
+    def track_objects(self, video_path, output_path='output.mp4'):
+        cap = cv2.VideoCapture(video_path)
+        frame_width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+        frame_height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+        fps = int(cap.get(cv2.CAP_PROP_FPS))
+        
+        fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+        out = cv2.VideoWriter(output_path, fourcc, fps, (frame_width, frame_height))
 
-        for track in tracks:
-            if not track.is_confirmed():
-                continue
+        while cap.isOpened():
+            ret, frame = cap.read()
+            if not ret:
+                break
 
-            track_id = track.track_id
-            bbox = track.to_tlwh()  # Convert to [x, y, w, h] format
-            x, y, w, h = map(int, bbox)
+            results = self.model.track(
+                frame,
+                persist=True,
+                classes=0,  # Track people (class 0 in COCO)
+                conf=0.5,
+                iou=0.5,  # IOU threshold
+                verbose=False  # Disable verbose output
+            )
 
-            # cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
-            cv2.putText(frame, f"ID: {track_id}", (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 0, 255), 2)
+            annotated_frame = results[0].plot()
 
-        return frame
+            out.write(annotated_frame)
+
+            cv2.imshow('Tracking', annotated_frame)
+            if cv2.waitKey(1) & 0xFF == ord('q'):
+                break
+
+        cap.release()
+        out.release()
+        cv2.destroyAllWindows()
+
+if __name__ == '__main__':
+    tracker = Tracker(model_path='yolov8x.pt')
+    tracker.track_objects(
+        video_path=r"Y:\Fawry Competition\surveillance-for-retail-stores\Surveillance-for-Retail-Stores\models\tracking\football-video.mp4",
+        output_path="models/tracking/tracking_results.mp4"
+    )
