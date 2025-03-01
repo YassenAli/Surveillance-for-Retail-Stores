@@ -1,11 +1,23 @@
 import cv2
+import torch
 from ultralytics import YOLO
 
 class Tracker:
     def __init__(self, model_path='yolov8x.pt'):
-        self.model = YOLO(model_path)
+        self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
+        self.model = YOLO(model_path).to(self.device)
+
+        # self.model.fuse = False  # Disable fusion for FP16
+
+        # self.model.fuse() # Fuse layers in FP32
+
+        # Temporarily switch to FP32 for fusion
+        with torch.amp.autocast(device_type=self.device, enabled=False):
+            self.model.fuse()
         
-        self.class_names = self.model.names
+        if self.device == 'cuda':
+            self.model = self.model.half()
+            print("Using FP16 precision")
 
     def track_objects(self, video_path, output_path='output.mp4'):
         cap = cv2.VideoCapture(video_path)
@@ -24,17 +36,17 @@ class Tracker:
             results = self.model.track(
                 frame,
                 persist=True,
-                classes=0,  # Track people (class 0 in COCO)
+                classes=0,
                 conf=0.5,
-                iou=0.5,  # IOU threshold
-                verbose=False  # Disable verbose output
+                iou=0.5,
+                verbose=False,
+                device=self.device
             )
 
             annotated_frame = results[0].plot()
-
             out.write(annotated_frame)
-
             cv2.imshow('Tracking', annotated_frame)
+            
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 break
 
@@ -46,5 +58,5 @@ if __name__ == '__main__':
     tracker = Tracker(model_path='yolov8x.pt')
     tracker.track_objects(
         video_path=r"Y:\Fawry Competition\surveillance-for-retail-stores\Surveillance-for-Retail-Stores\models\tracking\football-video.mp4",
-        output_path="models/tracking/tracking_results.mp4"
+        output_path="../../tracking_results.mp4"
     )

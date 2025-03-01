@@ -1,5 +1,6 @@
 # Ignore directories
-data/face_identification
+#data/face_identification
+data/face_identification/train/
 data/face_identification/test/
 data/tracking/test/
 data/tracking/train/
