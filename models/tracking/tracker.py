@@ -57,6 +57,6 @@ class Tracker:
 if __name__ == '__main__':
     tracker = Tracker(model_path='yolov8x.pt')
     tracker.track_objects(
-        video_path=r"Y:\Fawry Competition\surveillance-for-retail-stores\Surveillance-for-Retail-Stores\models\tracking\football-video.mp4",
-        output_path="../../tracking_results.mp4"
+        video_path=r"data\tracking\test\football-video.mp4",
+        output_path=r"data\tracking\test\tracking_results.mp4"
     )
