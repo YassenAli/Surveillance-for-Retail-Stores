@@ -6,7 +6,7 @@ from deepface import DeepFace
 # from deepface.commons import functions
 
 class DeepFaceRecognizer:
-    def __init__(self, db_path, model_name="Facenet", distance_metric="cosine", threshold=0.4, enforce_detection=False):
+    def __init__(self, db_path, model_name="ArcFace", distance_metric="cosine", threshold=0.4, enforce_detection=False):
         self.db_path = db_path
         self.model_name = model_name
         self.distance_metric = distance_metric
@@ -48,9 +48,9 @@ if __name__ == '__main__':
     
     recognizer = DeepFaceRecognizer(
         db_path=db_path,
-        model_name="Facenet",
+        model_name="ArcFace",
         distance_metric="cosine",
-        threshold=0.4,
+        threshold=0.3,
         enforce_detection=False
     )
     
