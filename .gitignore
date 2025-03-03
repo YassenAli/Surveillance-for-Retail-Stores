@@ -1,11 +1,8 @@
-# Ignore directories
-#data/face_identification
 data/face_identification/train/
 data/face_identification/test/
 data/tracking/test/
 data/tracking/train/
 
-# Ignore specific files
 yolov8n.pt
 yolov8x.pt
 models/tracking/yolov8n.pt
