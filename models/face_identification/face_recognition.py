@@ -44,7 +44,7 @@ class DeepFaceRecognizer:
 # --- Testing Code ---
 if __name__ == '__main__':
     db_path = r"data\face_identification\train"  # Adjust this path to your training images database
-    test_img_path = r"data\face_identification\test\11684.jpg"  # Adjust to your test image path
+    test_img_path = r"Y:\Fawry Competition\surveillance-for-retail-stores\Surveillance-for-Retail-Stores\data\face_identification\test\11680.jpg"  # Adjust to your test image path
     
     recognizer = DeepFaceRecognizer(
         db_path=db_path,
