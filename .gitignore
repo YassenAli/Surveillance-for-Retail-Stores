@@ -3,8 +3,6 @@ data/face_identification/test/
 data/tracking/test/
 data/tracking/train/
 
-TrackEval/
-
 yolov8n.pt
 yolov8x.pt
 models/tracking/yolov8n.pt

@@ -22,7 +22,7 @@ class Tracker:
             self.model = self.model.half()
             print("Using FP16 precision")
 
-    def track_sequence(self, sequence_path, output_path='output.mp4', prediction_file='tracking_predictions.csv'):
+    def track_sequence(self, sequence_path, output_path='output.mp4'):
         ini_path = os.path.join(sequence_path, 'seqinfo.ini')
         config = configparser.ConfigParser()
         config.read(ini_path)
@@ -32,9 +32,8 @@ class Tracker:
         seqLength = int(seq_info.get('seqLength'))
         imWidth = int(seq_info.get('imWidth'))
         imHeight = int(seq_info.get('imHeight'))
-        imExt = seq_info.get('imExt')  # e.g., '.jpg'
+        imExt = seq_info.get('imExt')
         
-        # Define the image folder path
         img_folder = os.path.join(sequence_path, imDir)
         image_files = sorted([f for f in os.listdir(img_folder) if f.endswith(imExt)])
         if not image_files:
@@ -45,6 +44,12 @@ class Tracker:
         fourcc = cv2.VideoWriter_fourcc(*'mp4v')
         out = cv2.VideoWriter(output_path, fourcc, frameRate, (imWidth, imHeight))
         
+        sequence_name = os.path.basename(os.path.normpath(sequence_path))
+        prediction_dir = os.path.join('tracker_results', 'data')
+        os.makedirs(prediction_dir, exist_ok=True)
+        prediction_file = os.path.join(prediction_dir, f'{sequence_name}.txt')
+        # prediction_file = os.path.join(prediction_dir, f'{sequence_name}.csv')
+
         predictions = []  # List to hold prediction rows
         frame_number = 1
 
@@ -55,11 +60,10 @@ class Tracker:
                 print(f"Warning: Could not read image {img_path}")
                 continue
 
-            # Run tracking on the frame
             results = self.model.track(
                 frame,
                 persist=True,
-                classes=0,    # Only detect persons
+                classes=0,
                 conf=0.5,
                 iou=0.5,
                 verbose=False,
@@ -74,14 +78,13 @@ class Tracker:
                 if not hasattr(box, "id") or box.id is None:
                     continue
                 tracked_id = int(box.id)
-                # Get bounding box coordinates (in [x1, y1, x2, y2] format)
                 bbox = box.xyxy.cpu().numpy()[0]
                 x1, y1, x2, y2 = bbox.tolist()
                 w = x2 - x1
                 h = y2 - y1
-                # Use detection confidence from the box
                 confidence = float(box.conf.cpu().numpy()[0])
-                predictions.append([frame_number, tracked_id, x1, y1, w, h, confidence])
+                # predictions.append([frame_number, tracked_id, x1, y1, w, h, confidence])
+                predictions.append([frame_number, tracked_id, x1, y1, w, h, confidence, -1, -1, -1]) # Append MOTChallenge format: 10 columns
             
             frame_number += 1
             # print(f"Processed frame {frame_number}")
@@ -89,15 +92,15 @@ class Tracker:
 
         with open(prediction_file, mode='w', newline='') as file:
             writer = csv.writer(file)
-            writer.writerow(['frame', 'tracked_id', 'x', 'y', 'w', 'h', 'confidence'])
-            for row in predictions:
-                writer.writerow(row)
+            # writer.writerow(['frame', 'tracked_id', 'x', 'y', 'w', 'h', 'confidence'])
+            # for row in predictions:
+            #     writer.writerow(row)
+            writer.writerows(predictions)
         print(f"Predictions saved to {prediction_file}")
 
 if __name__ == '__main__':
     tracker = Tracker(model_path='yolov8x.pt')
     tracker.track_sequence(
         sequence_path=r"data\tracking\train\05",
-        output_path=r"data\tracking\train\05.mp4",
-        prediction_file=r"data\tracking\train\05.csv"
+        output_path=r"data\tracking\train\05.mp4"
     )
