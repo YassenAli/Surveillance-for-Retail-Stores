@@ -4,14 +4,16 @@ from ultralytics import YOLO
 import csv
 import os
 import configparser
+import numpy
 
 class Tracker:
-    def __init__(self, model_path='yolov8x.pt'):
+    def __init__(self, model_path='yolo12x.pt'):
         self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
         self.model = YOLO(model_path).to(self.device)
 
         # self.model.fuse = False  # Disable fusion for FP16
 
+        # YOLOv12-specific optimizations
         # self.model.fuse() # Fuse layers in FP32
 
         # Temporarily switch to FP32 for fusion
@@ -20,7 +22,9 @@ class Tracker:
         
         if self.device == 'cuda':
             self.model = self.model.half()
-            print("Using FP16 precision")
+            print("Using FP16 precision on", self.device)
+        else:
+            print("Using FP32 precision on", self.device)
 
     def track_sequence(self, sequence_path, output_path='output.mp4'):
         ini_path = os.path.join(sequence_path, 'seqinfo.ini')
@@ -64,8 +68,8 @@ class Tracker:
                 frame,
                 persist=True,
                 classes=0,
-                conf=0.5,
-                iou=0.5,
+                conf=0.3,
+                iou=0.45,
                 verbose=False,
                 device=self.device
             )
@@ -99,8 +103,8 @@ class Tracker:
         print(f"Predictions saved to {prediction_file}")
 
 if __name__ == '__main__':
-    tracker = Tracker(model_path='yolov8x.pt')
+    tracker = Tracker(model_path='yolo12x.pt')
     tracker.track_sequence(
         sequence_path=r"data\tracking\train\05",
-        output_path=r"data\tracking\train\05.mp4"
+        output_path=r"data\tracking\train\06.mp4"
     )

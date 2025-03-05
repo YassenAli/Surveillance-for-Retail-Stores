@@ -3,7 +3,11 @@ data/face_identification/test/
 data/tracking/test/
 data/tracking/train/
 
+tracker_results/
+
 yolov8n.pt
 yolov8x.pt
+yolo12x.pt
 models/tracking/yolov8n.pt
 models/tracking/yolov8x.pt
+models/tracking/yolo12x.pt

@@ -4,4 +4,3 @@ scipy
 deep_sort_realtime
 ultralytics
 cv2
-facenet-pytorch
