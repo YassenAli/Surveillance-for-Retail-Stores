@@ -57,4 +57,3 @@ if __name__ == '__main__':
     identity, distance = recognizer.recognize(test_img_path)
     print("Recognized Identity:", identity)
     print("Distance:", distance)
-    
