@@ -68,8 +68,8 @@ class Tracker:
                 frame,
                 persist=True,
                 classes=0,
-                conf=0.3,
-                iou=0.45,
+                conf=0.3,           # (0.3, 0.4, 0.5).
+                iou=0.45,           # (0.45, 0.5, 0.55).
                 verbose=False,
                 device=self.device
             )

@@ -6,7 +6,7 @@ from deepface import DeepFace
 # from deepface.commons import functions
 
 class DeepFaceRecognizer:
-    def __init__(self, db_path, model_name="ArcFace", distance_metric="cosine", threshold=0.4, enforce_detection=False):
+    def __init__(self, db_path, model_name="Facenet", distance_metric="cosine", threshold=0.4, enforce_detection=False):
         self.db_path = db_path
         self.model_name = model_name
         self.distance_metric = distance_metric
@@ -44,16 +44,17 @@ class DeepFaceRecognizer:
 # --- Testing Code ---
 if __name__ == '__main__':
     db_path = r"data\face_identification\train"  # Adjust this path to your training images database
-    test_img_path = r"Y:\Fawry Competition\surveillance-for-retail-stores\Surveillance-for-Retail-Stores\data\face_identification\test\11680.jpg"  # Adjust to your test image path
+    test_img_path = r"data\face_identification\test\9198.jpg"  # Adjust to your test image path
     
     recognizer = DeepFaceRecognizer(
         db_path=db_path,
-        model_name="ArcFace",
+        model_name="Facenet",
         distance_metric="cosine",
-        threshold=0.3,
+        threshold=0.4,
         enforce_detection=False
     )
     
     identity, distance = recognizer.recognize(test_img_path)
     print("Recognized Identity:", identity)
     print("Distance:", distance)
+    
