@@ -1,59 +1,114 @@
-import sys
+backends = ['opencv', 'ssd', 'dlib', 'mtcnn', 'fastmtcnn', 'retinaface', 
+            'mediapipe', 'yolov8', 'yolov11s', 'yolov11n', 'yolov11m', 'yunet', 'centerface']
+
+models = ["VGG-Face", "Facenet", "Facenet512", "OpenFace", "DeepFace", 
+            "DeepID", "ArcFace", "Dlib", "SFace", "GhostFaceNet", "Buffalo_L"]
+
+metrics = ["cosine", "euclidean", "euclidean_l2"]
+
 import numpy as np
-sys.setrecursionlimit(10000)
-
+import pandas as pd
+import pickle
+import cv2
 from deepface import DeepFace
-# from deepface.commons import functions
+import ast
+import os
 
-class DeepFaceRecognizer:
-    def __init__(self, db_path, model_name="Facenet", distance_metric="cosine", threshold=0.4, enforce_detection=False):
-        self.db_path = db_path
-        self.model_name = model_name
-        self.distance_metric = distance_metric
-        self.threshold = threshold
-        self.enforce_detection = enforce_detection
+dataset_path = "../../data/face_identification/"
+trainset = pd.read_csv(f"{dataset_path}trainset.csv")
+print(trainset.head())
 
-    def recognize(self, test_img_path):
-        try:
-            # Validate input image first
-            # if not functions.detect_face(test_img_path):
-            #     return "doesn't_exist", None
-            # DeepFace.find will search the db_path for similar faces using the chosen model and metric.
-            results = DeepFace.find(
-                img_path=test_img_path,
-                db_path=self.db_path,
-                model_name=self.model_name,
-                distance_metric=self.distance_metric,
-                enforce_detection=self.enforce_detection
-            )
-            
-            if not results or results[0].empty:
-                return "doesn't_exist", None
-            
-            df = results[0]
-            best_match = df.iloc[0]
-            best_distance = best_match["distance"]
-            if best_distance < self.threshold:
-                return best_match["identity"], best_distance
-            else:
-                return "doesn't_exist", best_distance
-        except Exception as e:
-            print("Error in recognize:", str(e))
-            return "doesn't_exist", None
+# Dictionary to store embeddings
+embeddings_dict = {}
 
-# --- Testing Code ---
-if __name__ == '__main__':
-    db_path = r"data\face_identification\train"  # Adjust this path to your training images database
-    test_img_path = r"data\face_identification\test\9198.jpg"  # Adjust to your test image path
+failed = success = 0
+model_name = models[6]
+detector_backend = backends[7]
+
+for index, row in trainset.iterrows():
+    image_path = f"{dataset_path}{row['image_path']}"
+    person_name = row["gt"]
+
+    try:
+        embedding_obj = DeepFace.represent(image_path, model_name=model_name, detector_backend=detector_backend)[0]["embedding"]
+        embeddings_dict.setdefault(person_name, []).append(embedding_obj)
+        
+        success += 1
+        if success % 500 == 0:
+            print(f"Processed {success} images")
+    except Exception as e:
+        print(f"Error: {e}")
+        failed += 1
+
+with open("embeddings.pkl", "wb") as f:
+    pickle.dump({
+        "embeddings_dict": embeddings_dict,
+        "model_name": model_name,
+        "distance_metric": metrics[0],
+        "threshold": 0.5
+    }, f)
+
+print("Embeddings saved to embeddings.pkl")
+print(f"Processed successfully: {success}")
+print(f"Failed to process: {failed}")
+
+with open("embeddings.pkl", "rb") as f:
+    known_embeddings = pickle.load(f)
+
+def recognize_face(image_path, threshold=0.5):
+    try:
+        embedding_obj = DeepFace.represent(image_path, model_name=model_name, detector_backend=detector_backend)[0]["embedding"]
+    except Exception as e:
+        print(f"Error: {e}")
+        return "doesn't_exist"
+
+    best_match = None
+    best_similarity = -1
+
+    embeddings_dict = known_embeddings["embeddings_dict"]
     
-    recognizer = DeepFaceRecognizer(
-        db_path=db_path,
-        model_name="Facenet",
-        distance_metric="cosine",
-        threshold=0.4,
-        enforce_detection=False
-    )
+    for person, known_embedding_list in embeddings_dict.items():
+        mean_known_embedding = np.mean(known_embedding_list, axis=0)
+
+        similarity = np.dot(embedding_obj, mean_known_embedding) / (np.linalg.norm(embedding_obj) * np.linalg.norm(mean_known_embedding))
+
+        if similarity > best_similarity:
+            best_similarity = similarity
+            best_match = person
+
+    return best_match if best_similarity >= threshold else "doesn't_exist"
+
+
+test_dataset_path = f"{dataset_path}test/"
+eval_set = pd.read_csv(f"{dataset_path}eval_set.csv")
+
+for index, row in eval_set.iterrows():
+    result = recognize_face(f"{test_dataset_path}{row['image_path']}")
+    eval_set.at[index, "gt"] = result
     
-    identity, distance = recognizer.recognize(test_img_path)
-    print("Recognized Identity:", identity)
-    print("Distance:", distance)
+    if index % 500 == 0:
+        print(f"{index} images evaluated")
+
+eval_set.to_csv("eval_set.csv", index=False)
+
+submission = pd.read_csv("../../data/submission_file.csv")
+filled_eval_set = pd.read_csv("/kaggle/working/eval_set.csv")
+
+# loop through submission file
+for index, row in submission.iterrows():
+    if row["ID"] < 429:
+        continue
+    image_dict_string = row["objects"]
+    image_dict = ast.literal_eval(image_dict_string)
+    image_string_name = image_dict["image"]
+    filename = os.path.basename(image_string_name)
+    
+    # loop through eval_set
+    for index2, row2 in filled_eval_set.iterrows():
+        if row2["image_path"] == filename:
+            ground_truth = row2["gt"]
+            image_dict["gt"] = ground_truth
+            submission.at[index, "objects"] = image_dict
+            break
+
+submission.to_csv("submission.csv", index=False)

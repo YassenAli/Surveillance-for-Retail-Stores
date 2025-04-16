@@ -27,16 +27,6 @@ This project is designed to address two key objectives:
 - **Benefit:** Helps in tracking staff presence and ensuring that all procedures are followed.
 - **How:** Implement a face recognition system using a frontal camera to verify staff identities against a provided list of authorized team members.
 
-## Team Members
-
-This project has been developed by a dedicated team:
-- **Yassin Ali**
-- **Maryam Omar**
-- **Nour Eldeen Mohamed**
-
-We are grateful for the guidance and support of our supervisor:
-- **Belal Tarek** (TA, Faculty of Computers and Artificial Intelligence)
-
 ## Getting Started
 
 Detailed instructions for setting up and running the project will be provided soon. Stay tuned for updates on installation, configuration, and usage guidelines.

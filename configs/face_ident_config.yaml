@@ -1,0 +1,45 @@
+face_reidentification:
+  dataset_path: "../../data/face_identification/"
+  train_csv: "trainset.csv"
+  eval_csv: "eval_set.csv"
+  submission_csv: "../../data/submission_file.csv"
+  filled_eval_output: "eval_set.csv"
+  submission_output: "submission.csv"
+  embeddings_file: "embeddings.pkl"
+  model:
+    name: "ArcFace"
+    supported_models:
+      - "VGG-Face"
+      - "Facenet"
+      - "Facenet512"
+      - "OpenFace"
+      - "DeepFace"
+      - "DeepID"
+      - "ArcFace"
+      - "Dlib"
+      - "SFace"
+      - "GhostFaceNet"
+      - "Buffalo_L"
+  detector:
+    backend: "yolov8"
+    supported_backends:
+      - "opencv"
+      - "ssd"
+      - "dlib"
+      - "mtcnn"
+      - "fastmtcnn"
+      - "retinaface"
+      - "mediapipe"
+      - "yolov8"
+      - "yolov11s"
+      - "yolov11n"
+      - "yolov11m"
+      - "yunet"
+      - "centerface"
+  recognition:
+    metric: "cosine"
+    supported_metrics:
+      - "cosine"
+      - "euclidean"
+      - "euclidean_l2"
+    threshold: 0.5

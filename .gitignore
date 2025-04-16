@@ -4,10 +4,21 @@ data/tracking/test/
 data/tracking/train/
 
 tracker_results/
+results/
+dataset/
+dataset.zip
 
+test.py
+
+yolo11n.pt
+yolo12n.pt
 yolov8n.pt
 yolov8x.pt
 yolo12x.pt
 models/tracking/yolov8n.pt
 models/tracking/yolov8x.pt
 models/tracking/yolo12x.pt
+models/tracking/best.pt
+models/tracking/last.pt
+best.pt
+last.pt

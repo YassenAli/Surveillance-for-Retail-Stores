@@ -1,0 +1,19 @@
+tracker:
+  model_path: "../../dataset/best.pt"  # Path to the YOLO model
+  device: "cuda"  # Options: 'cuda' or 'cpu', automatically detected
+  use_amp: false  # Mixed precision
+
+sequence:
+  sequence_path: "../../data/tracking/test/01"  # Path to the sequence folder
+  output_video_path: "tracker_results/data/test.mp4"  # Output video path
+  prediction_output_dir: "tracker_results/data"  # Where to store MOT-format predictions
+
+tracking:
+  conf_threshold: 0.5  # Confidence threshold for detections
+  iou_threshold: 0.55  # IOU threshold for tracking
+  classes: [0]  # List of class IDs to track (e.g., [0] for 'person')
+
+submission:
+  prediction_file: "tracker_results/data/05.txt"  # Path to the prediction .txt file
+  sample_submission: "submission.csv"  # Path to sample submission
+  output_file: "final_submission.csv"  # Final formatted submission
