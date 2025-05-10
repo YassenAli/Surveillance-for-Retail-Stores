@@ -3,12 +3,19 @@ data/face_identification/test/
 data/tracking/test/
 data/tracking/train/
 
+.idea
+
 tracker_results/
 results/
 dataset/
 dataset.zip
 
 test.py
+
+notebooks/main.ipynb
+models/tracking/verifyCuda.py
+models/tracking/verifyCuda.py
+models/tracking/numpy_test.py
 
 yolo11n.pt
 yolo12n.pt
